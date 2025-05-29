@@ -1,4 +1,5 @@
 using System.Text.Json.Serialization;
+using Api.Core.Middlewares;
 
 namespace Api.Configuration;
 
@@ -14,7 +15,8 @@ public static partial class ServiceCollectionExtension
                 options.JsonSerializerOptions.Converters.Add(new JsonStringEnumConverter());
             });
 
-        //services.AddAuthorization();
+        services.AddTransient<AuthenticationMiddleware>();
+        services.AddAuthorization();
         services.AddEndpointsApiExplorer();
         services.AddSwaggerGen();
         

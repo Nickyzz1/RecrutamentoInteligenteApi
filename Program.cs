@@ -4,9 +4,11 @@ var builder = WebApplication.CreateBuilder(args);
 
 builder.Services
     .ConfigureDatabase(builder.Configuration)
+    .ConfigureJwt(builder.Configuration)
     .ConfigureMainConfigs()
     .ConfigureEntityRepositories()
-    .ConfigureEntityServices();
+    .ConfigureEntityServices()
+    .ConfigureAddons();
 
 var app = builder.Build();
 
@@ -21,6 +23,8 @@ if(app.Environment.IsDevelopment())
     app.UseSwagger();
     app.UseSwaggerUI();
 }
+
+app.UseAuthorization();
 
 app.MapControllers();
 
