@@ -7,18 +7,18 @@ namespace Api.Controllers;
 
 [ApiController]
 [NoAuth]
-public class AuthController(
-    IUserService userService,
-    IJwtService jwtService
-) : ControllerBase
+public class AuthController : ControllerBase
 {
-    private readonly IUserService userService = userService;
-    private readonly IJwtService jwtService = jwtService;
+
     [HttpPost]
     [Route("/auth")]
-    public async Task<ActionResult> Login([FromBody] UserAuthPayload auth)
+    public async Task<ActionResult> Login(
+        [FromBody] UserAuthPayload data,
+        [FromServices] IJwtService jwtService,
+        [FromServices] IUserService userService
+    )
     {
-        User? user = await userService.Auth(auth.Email, auth.Password);
+        User? user = await userService.Auth(data.Email, data.Password);
 
         if(user == null)
         {
@@ -26,5 +26,22 @@ public class AuthController(
         }
 
         return Ok(new {token=jwtService.GenerateToken(UserDTO.Map(user))});
+    }
+
+    [HttpPost]
+    [Route("/register")]
+    public async Task<ActionResult> Register([FromBody] UserRegisterPayload data, [FromServices] IUserService userService)
+    {
+        if(data.Password != data.PasswordRepeat)
+        {
+            return BadRequest(new {message="Passwords don't match"});
+        }
+
+        if(await userService.Register(data))
+        {
+            return Ok(new {message="User created"});
+        }
+
+        throw new Exception("Could not create user");
     }
 }
