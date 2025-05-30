@@ -795,7 +795,7 @@ using Api.Domain.Services;
 
 namespace Api.Core.Services;
 
-public class $($EntityName)Service($($EntityName)Repository repository)
+public class $($EntityName)Service(BaseRepository<$($EntityName)> repository)
     : BaseService<$($EntityName)>(repository), I$($EntityName)Service
 {
 
