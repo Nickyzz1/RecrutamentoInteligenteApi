@@ -71,7 +71,7 @@ public class JwtService : IJwtService
 
                 if(!bool.TryParse(claims.FindFirst("Admin")!.Value, out bool Admin)){throw new Exception("Token is corrupted");}
 
-                _user.Set(new LocalUser(Id, claims.FindFirst("Name")!.Value, Admin));
+                _user.Set(Id, claims.FindFirst("Name")!.Value, Admin);
             }
         }
         catch(Exception ex)

@@ -6,12 +6,13 @@ using Microsoft.AspNetCore.Mvc;
 namespace Api.Controllers;
 
 [ApiController]
+[Route("api/v1")]
 [NoAuth]
 public class AuthController : ControllerBase
 {
 
     [HttpPost]
-    [Route("/auth")]
+    [Route("auth")]
     public async Task<ActionResult> Login(
         [FromBody] UserAuthPayload data,
         [FromServices] IJwtService jwtService,
@@ -29,7 +30,7 @@ public class AuthController : ControllerBase
     }
 
     [HttpPost]
-    [Route("/register")]
+    [Route("register")]
     public async Task<ActionResult> Register([FromBody] UserRegisterPayload data, [FromServices] IUserService userService)
     {
         if(data.Password != data.PasswordRepeat)

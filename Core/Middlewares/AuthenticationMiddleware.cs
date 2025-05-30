@@ -4,9 +4,9 @@ using Api.Domain.Services;
 
 namespace Api.Core.Middlewares;
 
-public class AuthenticationMiddleware(JwtService jwtService, LocalUser user) : IMiddleware
+public class AuthenticationMiddleware(IJwtService jwtService, LocalUser user) : IMiddleware
 {
-    public readonly JwtService _jwtService = jwtService;
+    public readonly IJwtService _jwtService = jwtService;
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
     {
         var endpoint = context.GetEndpoint();

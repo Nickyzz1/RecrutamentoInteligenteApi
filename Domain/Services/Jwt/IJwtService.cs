@@ -2,11 +2,11 @@ using Api.Domain.Models;
 
 namespace Api.Domain.Services;
 
-public class LocalUser(int Id, string Name, bool Admin)
+public class LocalUser
 {
-    private int _id = Id;
-    private string _name = Name;
-    private bool _admin = Admin;
+    private int _id;
+    private string _name = "";
+    private bool _admin;
 
     public int Id => _id;
     public string Name => _name;
@@ -17,6 +17,12 @@ public class LocalUser(int Id, string Name, bool Admin)
         this._id = localUser.Id;
         this._name = localUser.Name;
         this._admin = localUser.Admin;
+    }
+    public void Set(int id, string name, bool admin)
+    {
+        this._id = id;
+        this._name = name;
+        this._admin = admin;
     }
 }
 
