@@ -1,4 +1,5 @@
 using Api.Configuration;
+using Api.Core.Middlewares;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -25,6 +26,8 @@ if(app.Environment.IsDevelopment())
 }
 
 app.UseAuthorization();
+
+app.UseMiddleware<AuthenticationMiddleware>();
 
 app.MapControllers();
 

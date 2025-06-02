@@ -1,4 +1,5 @@
 using System.IdentityModel.Tokens.Jwt;
+using System.Text;
 using Api.Core.Services;
 using Api.Domain.Services;
 

@@ -12,15 +12,12 @@ public class JwtService : IJwtService
     private readonly JwtSecurityTokenHandler _tokenHandler;
     private readonly SymmetricSecurityKey _securityKey;
     private readonly SigningCredentials _credentials;
-    private readonly LocalUser _user;
 
     public JwtService(
         JwtSecurityTokenHandler tokenHandler,
-        LocalUser user,
         JwtSettings settings)
     {
         _tokenHandler = tokenHandler;
-        _user = user;
 
         _securityKey = new SymmetricSecurityKey(Encoding.UTF8.GetBytes(settings.SecretKey));
         _credentials = new SigningCredentials(_securityKey, SecurityAlgorithms.HmacSha512);
@@ -30,7 +27,7 @@ public class JwtService : IJwtService
     {
         var claims = new List<Claim>
             {
-                new("UserId", user.Id.ToString()),
+                new("Id", user.Id.ToString()),
                 new("Name", user.Name),
                 new("Admin", user.Admin.ToString())
             };
@@ -47,7 +44,7 @@ public class JwtService : IJwtService
         return token;
     }
 
-    public LocalUser? ValidateToken(string jwt)
+    public ClaimsPrincipal ValidateToken(string jwt)
     {
         ClaimsPrincipal? claims = null;
 
@@ -65,19 +62,11 @@ public class JwtService : IJwtService
                 },
                 out var validatedToken);
 
-            if(claims != null)
-            {
-                if(!int.TryParse(claims.FindFirst("Id")!.Value, out int Id)){throw new Exception("Token is corrupted");}
-
-                if(!bool.TryParse(claims.FindFirst("Admin")!.Value, out bool Admin)){throw new Exception("Token is corrupted");}
-
-                _user.Set(Id, claims.FindFirst("Name")!.Value, Admin);
-            }
+            return claims;
         }
         catch(Exception ex)
         {
             throw new Exception("Cannot validate token", ex);
         }
-        return null;
     }
 }

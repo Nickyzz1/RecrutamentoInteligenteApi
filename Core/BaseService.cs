@@ -9,30 +9,31 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
 {
     protected readonly IRepository<T> Repository = repository;
 
-    public virtual void Add(T entity)
+    public virtual T? Add(T entity)
     {
         var obj = Repository
-            .GetAllNoTracking()
+            .Get()
             .SingleOrDefault(item => item.Id == entity.Id);
 
         if(obj != null)
         {
-            throw new Exception("Object already exists");
+            return null;
         }
 
-        Repository.Add(entity);
+        obj = Repository.Add(entity);
         Repository.Save();
+        return obj;
     }
 
-    public virtual async Task<T> AddAsync(T entity)
+    public virtual async Task<T?> AddAsync(T entity)
     {
         var obj = await Repository
-            .GetAllNoTracking()
+            .Get()
             .SingleOrDefaultAsync(item => item.Id == entity.Id);
 
         if(obj != null)
         {
-            throw new Exception("Object already exists");
+            return null;
         }
 
         obj = Repository.Add(entity);
@@ -40,29 +41,63 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
         return obj;
     }
 
-    public virtual T Get(int id)
+    public virtual T? Get(int id)
     {
         var obj = Repository
-            .GetAllNoTracking()
+            .Get()
             .SingleOrDefault(item => item.Id == id);
 
         if(obj == null)
         {
-            throw new Exception("Object does not exists");
+            return null;
         }
 
         return obj;
     }
 
-    public virtual async Task<T> GetAsync(int id)
+    public virtual async Task<T?> GetAsync(int id)
     {
         var obj = await Repository
-            .GetAllNoTracking()
+            .Get()
             .SingleOrDefaultAsync(item => item.Id == id);
 
         if(obj is null)
         {
-            throw new Exception("Object does not exists");
+            return null;
+        }
+
+        return obj;
+    }
+
+    public virtual async Task<T?> GetAsync(int id, string include)
+    {
+        var obj = await Repository
+            .Get()
+            .Include(include)
+            .SingleOrDefaultAsync(item => item.Id == id);
+
+        if(obj is null)
+        {
+            return null;
+        }
+
+        return obj;
+    }
+
+    public virtual async Task<T?> GetAsync(int id, List<string> include)
+    {
+        var query = Repository.Get();
+
+        foreach(var item in include)
+        {
+            query.Include(item);
+        }
+        
+        var obj = await query.SingleOrDefaultAsync(item => item.Id == id);
+
+        if(obj is null)
+        {
+            return null;
         }
 
         return obj;
@@ -70,33 +105,33 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
 
 	public IEnumerable<T> GetAll()
     {
-        return Repository.GetAllNoTracking().ToList();
+        return Repository.Get().ToList();
     }
 
     public async Task<IEnumerable<T>> GetAllAsync()
     {
-        return await Repository.GetAllNoTracking().ToListAsync();
+        return await Repository.Get().ToListAsync();
     }
 
 	public IEnumerable<T> GetAll(int page, int limit)
     {
-        return Repository.GetAllNoTracking().Skip(page * limit).Take(limit).ToList();
+        return Repository.Get().Skip(page * limit).Take(limit).ToList();
     }
 
 	public async Task<IEnumerable<T>> GetAllAsync(int page, int limit)
     {
-        return await Repository.GetAllNoTracking().Skip(page * limit).Take(limit).ToListAsync();
+        return await Repository.Get().Skip(page * limit).Take(limit).ToListAsync();
     }
 
-	public virtual T Update(int id, T entity)
+	public virtual T? Update(int id, T entity)
     {
         var obj = Repository
-            .GetAllNoTracking()
+            .Get()
             .SingleOrDefault(item => item.Id == id);
 
         if(obj == null)
         {
-            throw new Exception("Object does not exists");
+            return null;
         }
 
         var updated = Repository.Update(entity);
@@ -105,15 +140,15 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
         return updated;
     }   
 
-    public virtual async Task<T> UpdateAsync(int id, T entity)
+    public virtual async Task<T?> UpdateAsync(int id, T entity)
     {
         var obj = await Repository
-            .GetAllNoTracking()
+            .Get()
             .SingleOrDefaultAsync(item => item.Id == id);
 
         if(obj == null)
         {
-            throw new Exception("Object does not exists");
+            return null;
         }
 
         var updated = Repository.Update(entity);
@@ -123,33 +158,35 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
         return updated;
     }
     
-    public virtual void Delete(int id)
+    public virtual T? Delete(int id)
     {
         var obj = Repository
-            .GetAllNoTracking()
+            .Get()
             .SingleOrDefault(item => item.Id == id);
 
         if(obj == null)
         {
-            throw new Exception("Object does not exists");
+            return null;
         }
 
         Repository.Remove(obj);
         Repository.Save();
+        return obj;
     }
 
-    public virtual async Task DeleteAsync(int id)
+    public virtual async Task<T?> DeleteAsync(int id)
     {
         var obj = await Repository
-            .GetAllNoTracking()
+            .Get()
             .SingleOrDefaultAsync(item => item.Id == id);
 
         if(obj == null)
         {
-            throw new Exception("Object does not exists");
+            return null;
         }
 
         Repository.Remove(obj);
         await Repository.SaveAsync();
+        return obj;
     }
 }

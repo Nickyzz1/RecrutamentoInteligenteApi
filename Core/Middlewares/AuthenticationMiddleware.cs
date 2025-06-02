@@ -1,10 +1,11 @@
+using Api.Configuration;
 using Api.Core.Services;
 using Api.Domain.Attributes;
 using Api.Domain.Services;
 
 namespace Api.Core.Middlewares;
 
-public class AuthenticationMiddleware(IJwtService jwtService, LocalUser user) : IMiddleware
+public class AuthenticationMiddleware(IJwtService jwtService) : IMiddleware
 {
     public readonly IJwtService _jwtService = jwtService;
     public async Task InvokeAsync(HttpContext context, RequestDelegate next)
@@ -30,7 +31,7 @@ public class AuthenticationMiddleware(IJwtService jwtService, LocalUser user) : 
 
         try 
         {
-            _jwtService.ValidateToken(token!);   
+            context.User = _jwtService.ValidateToken(token!);
         }
         catch(Exception)
         {
@@ -41,7 +42,7 @@ public class AuthenticationMiddleware(IJwtService jwtService, LocalUser user) : 
         
         if(endpoint?.Metadata.GetMetadata<AdminOnlyAttribute>() != null)
         {
-            if(user.Admin)
+            if(context.User.Admin())
             {
                 await next.Invoke(context);
                 return;
@@ -52,7 +53,7 @@ public class AuthenticationMiddleware(IJwtService jwtService, LocalUser user) : 
         await next.Invoke(context);
     }
     
-    private bool TryGetBearerToken(string auth, out string? token)
+    private static bool TryGetBearerToken(string auth, out string? token)
     {
         var parts = auth.Split(" ");
         if(parts.Length == 2 && parts[0] == "Bearer")
