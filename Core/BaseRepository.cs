@@ -19,6 +19,7 @@ public class BaseRepository<T>(DbContext context) : IRepository<T>
         var result = await Entities.AddAsync(entity);
         return result.Entity;
     }
+
     public virtual IQueryable<T> Get()
     {
         return Entities;

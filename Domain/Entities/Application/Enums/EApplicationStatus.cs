@@ -2,7 +2,9 @@ namespace Api.Domain.Models;
 
 public enum EApplicationStatus
 {
-    Pending = 0,
-    Disapproved = 1,
-    Approved = 2
+    Analysis = 0,
+    Approved = 1,
+    Disapproved = 2,
+    Activity = 3,
+    Interview = 4
 }

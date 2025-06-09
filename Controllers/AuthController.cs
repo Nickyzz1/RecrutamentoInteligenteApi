@@ -41,8 +41,9 @@ public class AuthController : ControllerBase
         if(await userService.Register(data))
         {
             return Ok(new {message="User created"});
+        }else
+        {
+            return BadRequest(new {message="Email is already in use"});
         }
-
-        throw new Exception("Could not create user");
     }
 }

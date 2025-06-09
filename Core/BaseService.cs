@@ -1,5 +1,6 @@
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.EntityFrameworkCore.Query;
 using Api.Domain;
 
 namespace Api.Core;
@@ -13,6 +14,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .SingleOrDefault(item => item.Id == entity.Id);
 
         if(obj != null)
@@ -29,6 +31,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = await Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .SingleOrDefaultAsync(item => item.Id == entity.Id);
 
         if(obj != null)
@@ -45,6 +48,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .SingleOrDefault(item => item.Id == id);
 
         if(obj == null)
@@ -59,6 +63,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = await Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .SingleOrDefaultAsync(item => item.Id == id);
 
         if(obj is null)
@@ -73,6 +78,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = await Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .Include(include)
             .SingleOrDefaultAsync(item => item.Id == id);
 
@@ -103,7 +109,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
         return obj;
     }
 
-	public IEnumerable<T> GetAll()
+    public IEnumerable<T> GetAll()
     {
         return Repository.Get().ToList();
     }
@@ -113,20 +119,21 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
         return await Repository.Get().ToListAsync();
     }
 
-	public IEnumerable<T> GetAll(int page, int limit)
+    public IEnumerable<T> GetAll(int page, int limit)
     {
         return Repository.Get().Skip(page * limit).Take(limit).ToList();
     }
 
-	public async Task<IEnumerable<T>> GetAllAsync(int page, int limit)
+    public async Task<IEnumerable<T>> GetAllAsync(int page, int limit)
     {
         return await Repository.Get().Skip(page * limit).Take(limit).ToListAsync();
     }
 
-	public virtual T? Update(int id, T entity)
+    public virtual T? Update(int id, T entity)
     {
         var obj = Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .SingleOrDefault(item => item.Id == id);
 
         if(obj == null)
@@ -144,6 +151,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = await Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .SingleOrDefaultAsync(item => item.Id == id);
 
         if(obj == null)
@@ -162,6 +170,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .SingleOrDefault(item => item.Id == id);
 
         if(obj == null)
@@ -178,6 +187,7 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = await Repository
             .Get()
+            .Where(obj => obj.IsActive)
             .SingleOrDefaultAsync(item => item.Id == id);
 
         if(obj == null)
@@ -186,6 +196,24 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
         }
 
         Repository.Remove(obj);
+        await Repository.SaveAsync();
+        return obj;
+    }
+    public virtual async Task<T?> SoftDeleteAsync(int id)
+    {
+        var obj = await Repository
+            .Get()
+            .Where(obj => obj.IsActive)
+            .SingleOrDefaultAsync(item => item.Id == id);
+
+        if(obj == null)
+        {
+            return null;
+        }
+
+        obj.IsActive = false;
+
+        Repository.Update(obj);
         await Repository.SaveAsync();
         return obj;
     }

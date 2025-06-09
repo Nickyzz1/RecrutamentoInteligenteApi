@@ -16,7 +16,6 @@ public class InterestController : ControllerBase
         [FromServices] BaseService<Interest> interestService
     )
     {
-        Console.WriteLine(User.Id());
         User? user = await userService.GetAsync(User.Id());
         if(user == null)
         {
