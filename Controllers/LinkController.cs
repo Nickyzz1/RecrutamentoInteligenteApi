@@ -4,6 +4,7 @@ using Api.Domain.Models;
 using Api.Configuration;
 using Api.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api.Controllers.Responses;
 
 namespace Api.Controllers;
 
@@ -20,12 +21,12 @@ public class LinkController : ControllerBase
     {
         if(payload.UserId != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
         User? user = await userService.GetAsync(User.Id());
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
         Link? link = await linkService.AddAsync(
@@ -37,10 +38,10 @@ public class LinkController : ControllerBase
         );
         if(link == null)
         {
-            return StatusCode(500, new {message="Could not add Link"});
+            return StatusCode(500, new BaseResponse("Could not add Link"));
         }
 
-        return Ok(new {message="Link added", value=LinkDTO.Map(link)});
+        return Ok(new BaseResponse("Link added", LinkDTO.Map(link)));
     }
 
     [HttpPatch]
@@ -54,12 +55,12 @@ public class LinkController : ControllerBase
         Link? link = await linkService.GetAsync(id, "User");
         if(link == null)
         {
-            return NotFound(new {message="Link not Found"});
+            return NotFound(new BaseResponse("Link not Found"));
         }
 
         if(link.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         if(payload.Url != null){link.Url = payload.Url;}
@@ -68,10 +69,10 @@ public class LinkController : ControllerBase
         link = await linkService.UpdateAsync(id, link);
         if(link == null)
         {
-            return StatusCode(500, new {message="Could not update Link"});
+            return StatusCode(500, new BaseResponse("Could not update Link"));
         }
 
-        return Ok(new {message="Link updated", value=LinkDTO.Map(link)});
+        return Ok(new BaseResponse("Link updated", LinkDTO.Map(link)));
     }
 
     [HttpDelete]
@@ -84,20 +85,20 @@ public class LinkController : ControllerBase
         Link? link = await linkService.GetAsync(id, "User");
         if(link == null)
         {
-            return NotFound(new {message="Link not Found"});
+            return NotFound(new BaseResponse("Link not Found"));
         }
 
         if(link.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         link = await linkService.DeleteAsync(id);
         if(link == null)
         {
-            return StatusCode(500, new {message="Could not delete Link"});
+            return StatusCode(500, new BaseResponse("Could not delete Link"));
         }
 
-        return Ok(new {message="Link deleted", value=LinkDTO.Map(link)});
+        return Ok(new BaseResponse("Link deleted", LinkDTO.Map(link)));
     }
 }

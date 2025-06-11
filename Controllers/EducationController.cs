@@ -4,6 +4,7 @@ using Api.Domain.Models;
 using Api.Configuration;
 using Api.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api.Controllers.Responses;
 
 namespace Api.Controllers;
 
@@ -20,12 +21,12 @@ public class EducationController : ControllerBase
     {
         if(payload.UserId != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
         User? user = await userService.GetAsync(User.Id());
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
         Education? education = await educationService.AddAsync(
@@ -41,10 +42,10 @@ public class EducationController : ControllerBase
         );
         if(education == null)
         {
-            return StatusCode(500, new {message="Could not add Education"});
+            return StatusCode(500, new BaseResponse("Could not add Education"));
         }
 
-        return Ok(new {message="Education added", value=EducationDTO.Map(education)});
+        return Ok(new BaseResponse("Education added", EducationDTO.Map(education)));
     }
 
     [HttpPatch]
@@ -58,12 +59,12 @@ public class EducationController : ControllerBase
         Education? education = await educationService.GetAsync(id, "User");
         if(education == null)
         {
-            return NotFound(new {message="Education not Found"});
+            return NotFound(new BaseResponse("Education not Found"));
         }
 
         if(education.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         if(payload.Course != null){education.Course = payload.Course;}
@@ -76,10 +77,10 @@ public class EducationController : ControllerBase
         education = await educationService.UpdateAsync(id, education);
         if(education == null)
         {
-            return StatusCode(500, new {message="Could not update Education"});
+            return StatusCode(500, new BaseResponse("Could not update Education"));
         }
 
-        return Ok(new {message="Education updated", value=EducationDTO.Map(education)});
+        return Ok(new BaseResponse("Education updated", EducationDTO.Map(education)));
     }
 
     [HttpDelete]
@@ -92,20 +93,20 @@ public class EducationController : ControllerBase
         Education? education = await educationService.GetAsync(id, "User");
         if(education == null)
         {
-            return NotFound(new {message="Education not Found"});
+            return NotFound(new BaseResponse("Education not Found"));
         }
 
         if(education.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         education = await educationService.DeleteAsync(id);
         if(education == null)
         {
-            return StatusCode(500, new {message="Could not delete Education"});
+            return StatusCode(500, new BaseResponse("Could not delete Education"));
         }
 
-        return Ok(new {message="Education deleted", value=EducationDTO.Map(education)});
+        return Ok(new BaseResponse("Education deleted", EducationDTO.Map(education)));
     }
 }

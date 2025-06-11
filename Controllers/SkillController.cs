@@ -4,6 +4,7 @@ using Api.Domain.Models;
 using Api.Configuration;
 using Api.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api.Controllers.Responses;
 
 namespace Api.Controllers;
 
@@ -20,12 +21,12 @@ public class SkillController : ControllerBase
     {
         if(payload.UserId != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
         User? user = await userService.GetAsync(User.Id());
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
         Skill? skill = await skillService.AddAsync(
@@ -36,10 +37,10 @@ public class SkillController : ControllerBase
         );
         if(skill == null)
         {
-            return StatusCode(500, new {message="Could not add skill"});
+            return StatusCode(500, new BaseResponse("Could not add skill"));
         }
 
-        return Ok(new {message="Skill added", value=SkillDTO.Map(skill)});
+        return Ok(new BaseResponse("Skill added", SkillDTO.Map(skill)));
     }
 
     [HttpPatch]
@@ -53,12 +54,12 @@ public class SkillController : ControllerBase
         Skill? skill = await skillService.GetAsync(id, "User");
         if(skill == null)
         {
-            return NotFound(new {message="Skill not Found"});
+            return NotFound(new BaseResponse("Skill not Found"));
         }
 
         if(skill.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         if(payload.Name != null){skill.Name = payload.Name;}
@@ -66,10 +67,10 @@ public class SkillController : ControllerBase
         skill = await skillService.UpdateAsync(id, skill);
         if(skill == null)
         {
-            return StatusCode(500, new {message="Could not update skill"});
+            return StatusCode(500, new BaseResponse("Could not update skill"));
         }
 
-        return Ok(new {message="Skill updated", value=SkillDTO.Map(skill)});
+        return Ok(new BaseResponse("Skill updated", SkillDTO.Map(skill)));
     }
 
     [HttpDelete]
@@ -82,20 +83,20 @@ public class SkillController : ControllerBase
         Skill? skill = await skillService.GetAsync(id, "User");
         if(skill == null)
         {
-            return NotFound(new {message="Skill not Found"});
+            return NotFound(new BaseResponse("Skill not Found"));
         }
 
         if(skill.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         skill = await skillService.DeleteAsync(id);
         if(skill == null)
         {
-            return StatusCode(500, new {message="Could not delete skill"});
+            return StatusCode(500, new BaseResponse("Could not delete skill"));
         }
 
-        return Ok(new {message="Skill deleted", value=SkillDTO.Map(skill)});
+        return Ok(new BaseResponse("Skill deleted", SkillDTO.Map(skill)));
     }
 }

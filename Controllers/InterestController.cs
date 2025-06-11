@@ -1,4 +1,5 @@
 using Api.Configuration;
+using Api.Controllers.Responses;
 using Api.Core;
 using Api.Domain.Models;
 using Microsoft.AspNetCore.Mvc;
@@ -19,7 +20,7 @@ public class InterestController : ControllerBase
         User? user = await userService.GetAsync(User.Id());
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
         Interest? interest = await interestService.AddAsync(
@@ -30,10 +31,10 @@ public class InterestController : ControllerBase
         );
         if(interest == null)
         {
-            return StatusCode(500, new {message="Could not add interest"});
+            return StatusCode(500, new BaseResponse("Could not add interest"));
         }
 
-        return Ok(new {message="Interest added", value=InterestDTO.Map(interest)});
+        return Ok(new BaseResponse("Interest added", InterestDTO.Map(interest)));
     }
 
     [HttpDelete]
@@ -46,20 +47,20 @@ public class InterestController : ControllerBase
         Interest? interest = await interestService.GetAsync(id, "User");
         if(interest == null)
         {
-            return NotFound(new {message="Interest not found"});
+            return NotFound(new BaseResponse("Interest not found"));
         }
         
         if(interest.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You cannot delete this object"});
+            return Unauthorized(new BaseResponse("You cannot delete this object"));
         }
 
         interest = await interestService.DeleteAsync(id);
         if(interest == null)
         {
-            return StatusCode(500, new {message="Could not delete interest"});
+            return StatusCode(500, new BaseResponse("Could not delete interest"));
         }
 
-        return Ok(new {message="Interest deleted", value=InterestDTO.Map(interest)});
+        return Ok(new BaseResponse("Interest deleted", InterestDTO.Map(interest)));
     }
 }

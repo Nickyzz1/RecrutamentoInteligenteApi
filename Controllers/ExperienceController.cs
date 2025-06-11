@@ -4,6 +4,7 @@ using Api.Domain.Models;
 using Api.Configuration;
 using Api.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api.Controllers.Responses;
 
 namespace Api.Controllers;
 
@@ -20,12 +21,12 @@ public class ExperienceController : ControllerBase
     {
         if(payload.UserId != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
         User? user = await userService.GetAsync(User.Id());
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
         Experience? experience = await experienceService.AddAsync(
@@ -41,10 +42,10 @@ public class ExperienceController : ControllerBase
         );
         if(experience == null)
         {
-            return StatusCode(500, new {message="Could not add Experience"});
+            return StatusCode(500, new BaseResponse("Could not add Experience"));
         }
 
-        return Ok(new {message="Experience added", value=ExperienceDTO.Map(experience)});
+        return Ok(new BaseResponse("Experience added", ExperienceDTO.Map(experience)));
     }
 
     [HttpPatch]
@@ -58,12 +59,12 @@ public class ExperienceController : ControllerBase
         Experience? experience = await experienceService.GetAsync(id, "User");
         if(experience == null)
         {
-            return NotFound(new {message="Experience not Found"});
+            return NotFound(new BaseResponse("Experience not Found"));
         }
 
         if(experience.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         if(payload.Role != null){experience.Role = payload.Role;}
@@ -76,10 +77,10 @@ public class ExperienceController : ControllerBase
         experience = await experienceService.UpdateAsync(id, experience);
         if(experience == null)
         {
-            return StatusCode(500, new {message="Could not update Experience"});
+            return StatusCode(500, new BaseResponse("Could not update Experience"));
         }
 
-        return Ok(new {message="Experience updated", value=ExperienceDTO.Map(experience)});
+        return Ok(new BaseResponse("Experience updated", ExperienceDTO.Map(experience)));
     }
 
     [HttpDelete]
@@ -92,20 +93,20 @@ public class ExperienceController : ControllerBase
         Experience? experience = await experienceService.GetAsync(id, "User");
         if(experience == null)
         {
-            return NotFound(new {message="Experience not Found"});
+            return NotFound(new BaseResponse("Experience not Found"));
         }
 
         if(experience.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         experience = await experienceService.DeleteAsync(id);
         if(experience == null)
         {
-            return StatusCode(500, new {message="Could not delete Experience"});
+            return StatusCode(500, new BaseResponse("Could not delete Experience"));
         }
 
-        return Ok(new {message="Experience deleted", value=ExperienceDTO.Map(experience)});
+        return Ok(new BaseResponse("Experience deleted", ExperienceDTO.Map(experience)));
     }
 }

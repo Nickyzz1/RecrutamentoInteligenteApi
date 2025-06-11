@@ -1,8 +1,10 @@
 using Api.Configuration;
+using Api.Controllers.Responses;
 using Api.Core;
 using Api.Domain.Models;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers;
 
@@ -19,16 +21,32 @@ public class UserController : ControllerBase
     {
         if(!(User.Id() == id || User.Admin()))
         {
-            return Unauthorized(new {message="You cannot access this resource"});
+            return Unauthorized(new BaseResponse("You cannot access this resource"));
         }
 
         User? user = await userService.GetAsync(id, ["Educations", "Experiences", "Interests", "Languages", "Skills", "Links"]);
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
-        return Ok(new {message="User found", value=UserDTO.Map(user)});
+        return Ok(new BaseResponse("User found", UserDTO.Map(user)));
+    }
+
+    [HttpGet]
+    [Route("applications")]
+    public async Task<ActionResult> GetUserApplications(
+        [FromServices] BaseRepository<Application> applicationRepository
+    )
+    {
+        IEnumerable<Vacancy> vacancies = await applicationRepository.Get()
+            .Include(obj => obj.Candidate)
+            .Include(obj => obj.Vacancy)
+            .Where(obj => obj.Candidate.Id == User.Id())
+            .Select(obj => obj.Vacancy)
+            .ToListAsync();
+        
+        return Ok(new BaseResponse("Vacancies found", vacancies.Select(obj => EvenSimplerVacancyDTO.Map(obj))));
     }
 
     [HttpPatch]
@@ -42,24 +60,24 @@ public class UserController : ControllerBase
     {
         if(!(User.Id() == id))
         {
-            return Unauthorized(new {message="You cannot access this resource"});
+            return Unauthorized(new BaseResponse("You cannot access this resource"));
         }
 
         User? user = await userService.GetAsync(id);
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
         if(payload.Password != null && payload.PasswordRepeat != null && payload.OldPassword != null)
         {
             if(payload.Password != payload.PasswordRepeat)
             {
-                return BadRequest(new {message="Passwords don't match"});
+                return BadRequest(new BaseResponse("Passwords don't match"));
             }
             if(hasher.VerifyHashedPassword(user, user.Password, payload.OldPassword) != PasswordVerificationResult.Success)
             {
-                return Unauthorized(new {message="Wrong password"});
+                return Unauthorized(new BaseResponse("Wrong password"));
             }
 
             user.Password = payload.Password;
@@ -74,9 +92,9 @@ public class UserController : ControllerBase
         user = await userService.UpdateAsync(id, user);
         if(user == null)
         {
-            return StatusCode(500, new {message="could not update"});
+            return StatusCode(500, new BaseResponse("could not update"));
         }
 
-        return Ok(new {message="User updated", value=user});
+        return Ok(new BaseResponse("User updated", UserProfileDTO.Map(user)));
     }
 }

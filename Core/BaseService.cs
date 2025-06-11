@@ -78,8 +78,8 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
     {
         var obj = await Repository
             .Get()
-            .Where(obj => obj.IsActive)
             .Include(include)
+            .Where(obj => obj.IsActive)
             .SingleOrDefaultAsync(item => item.Id == id);
 
         if(obj is null)
@@ -96,10 +96,10 @@ public class BaseService<T>(BaseRepository<T> repository) : IService<T>
 
         foreach(var item in include)
         {
-            query.Include(item);
+            query = query.Include(item);
         }
         
-        var obj = await query.SingleOrDefaultAsync(item => item.Id == id);
+        var obj = await query.Where(obj => obj.IsActive).SingleOrDefaultAsync(item => item.Id == id);
 
         if(obj is null)
         {

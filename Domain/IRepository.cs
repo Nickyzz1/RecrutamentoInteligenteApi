@@ -1,5 +1,6 @@
 using System.Threading.Tasks;
 using System.Linq;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Domain;
 

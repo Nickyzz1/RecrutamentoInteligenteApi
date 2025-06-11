@@ -1,3 +1,4 @@
+using Api.Controllers.Responses;
 using Api.Domain.Attributes;
 using Api.Domain.Models;
 using Api.Domain.Services;
@@ -23,7 +24,7 @@ public class AuthController : ControllerBase
 
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
         return Ok(new {token=jwtService.GenerateToken(UserDTO.Map(user))});
@@ -35,15 +36,15 @@ public class AuthController : ControllerBase
     {
         if(data.Password != data.PasswordRepeat)
         {
-            return BadRequest(new {message="Passwords don't match"});
+            return BadRequest(new BaseResponse("Passwords don't match"));
         }
 
         if(await userService.Register(data))
         {
-            return Ok(new {message="User created"});
+            return Ok(new BaseResponse("User created"));
         }else
         {
-            return BadRequest(new {message="Email is already in use"});
+            return BadRequest(new BaseResponse("Email is already in use"));
         }
     }
 }

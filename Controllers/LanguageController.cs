@@ -4,6 +4,7 @@ using Api.Domain.Models;
 using Api.Configuration;
 using Api.Domain.Services;
 using Microsoft.AspNetCore.Mvc;
+using Api.Controllers.Responses;
 
 namespace Api.Controllers;
 
@@ -20,12 +21,12 @@ public class LanguageController : ControllerBase
     {
         if(payload.UserId != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
         User? user = await userService.GetAsync(User.Id());
         if(user == null)
         {
-            return NotFound(new {message="User not found"});
+            return NotFound(new BaseResponse("User not found"));
         }
 
         Language? language = await languageService.AddAsync(
@@ -37,10 +38,10 @@ public class LanguageController : ControllerBase
         );
         if(language == null)
         {
-            return StatusCode(500, new {message="Could not add Language"});
+            return StatusCode(500, new BaseResponse("Could not add Language"));
         }
 
-        return Ok(new {message="Language added", value=LanguageDTO.Map(language)});
+        return Ok(new BaseResponse("Language added", LanguageDTO.Map(language)));
     }
 
     [HttpPatch]
@@ -54,12 +55,12 @@ public class LanguageController : ControllerBase
         Language? language = await languageService.GetAsync(id, "User");
         if(language == null)
         {
-            return NotFound(new {message="Language not Found"});
+            return NotFound(new BaseResponse("Language not Found"));
         }
 
         if(language.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         if(payload.Name != null){language.Name = payload.Name;}
@@ -68,10 +69,10 @@ public class LanguageController : ControllerBase
         language = await languageService.UpdateAsync(id, language);
         if(language == null)
         {
-            return StatusCode(500, new {message="Could not update Language"});
+            return StatusCode(500, new BaseResponse("Could not update Language"));
         }
 
-        return Ok(new {message="Language updated", value=LanguageDTO.Map(language)});
+        return Ok(new BaseResponse("Language updated", LanguageDTO.Map(language)));
     }
 
     [HttpDelete]
@@ -84,20 +85,20 @@ public class LanguageController : ControllerBase
         Language? language = await languageService.GetAsync(id, "User");
         if(language == null)
         {
-            return NotFound(new {message="Language not Found"});
+            return NotFound(new BaseResponse("Language not Found"));
         }
 
         if(language.User.Id != User.Id())
         {
-            return Unauthorized(new {message="You do not have permission to access this resource"});
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
         }
 
         language = await languageService.DeleteAsync(id);
         if(language == null)
         {
-            return StatusCode(500, new {message="Could not delete Language"});
+            return StatusCode(500, new BaseResponse("Could not delete Language"));
         }
 
-        return Ok(new {message="Language deleted", value=LanguageDTO.Map(language)});
+        return Ok(new BaseResponse("Language deleted", LanguageDTO.Map(language)));
     }
 }
