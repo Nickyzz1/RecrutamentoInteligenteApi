@@ -6,6 +6,7 @@ using Api.Domain.Models;
 using Api.Domain.Services;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.AspNetCore.Mvc;
+using Microsoft.EntityFrameworkCore;
 
 namespace Api.Controllers;
 
@@ -138,4 +139,39 @@ public class VacancyController : ControllerBase
         }
         return Ok(new BaseResponse("Vacancy found", VacancyFullDTO.Map(vacancy)));
     }
+
+    [NoAuth]
+    [HttpGet]
+    [Route("applications/{id}")]
+    public async Task<ActionResult> GetVacancyApplications(
+        [FromRoute] int id,
+        [FromServices] BaseRepository<Vacancy> vacancyRepository
+    )
+    {
+        Vacancy? vacancy = await vacancyRepository.Get()
+            .Include(vacancy => vacancy.Applications)
+                .ThenInclude(application => application.Candidate)
+                    .ThenInclude(user => user.Educations)
+            .Include(vacancy => vacancy.Applications)
+                .ThenInclude(application => application.Candidate)
+                    .ThenInclude(user => user.Experiences)
+            .Include(vacancy => vacancy.Applications)
+                .ThenInclude(application => application.Candidate)
+                    .ThenInclude(user => user.Languages)
+            .Include(vacancy => vacancy.Applications)
+                .ThenInclude(application => application.Candidate)
+                    .ThenInclude(user => user.Links)
+            .Include(vacancy => vacancy.Applications)
+                .ThenInclude(application => application.Candidate)
+                    .ThenInclude(user => user.Skills)
+            .SingleOrDefaultAsync(vacancy => vacancy.Id == id);
+
+        if(vacancy == null)
+        {
+            return NotFound(new BaseResponse("Vacancy not found"));
+        }
+
+        return Ok(new BaseResponse("Vacancy found", vacancy.Applications.Select(ApplicationFullDTO.Map)));
+    }
+
 }
