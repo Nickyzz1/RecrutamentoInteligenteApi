@@ -70,7 +70,7 @@ public class EducationController : ControllerBase
         if(payload.Course != null){education.Course = payload.Course;}
         if(payload.Institution != null){education.Institution = payload.Institution;}
         if(payload.StartDate != null){education.StartDate = (DateTime)payload.StartDate;}
-        if(payload.EndDate != null){education.EndDate = (DateTime)payload.EndDate;}
+        if(payload.EndDate != null){education.EndDate = payload.EndDate.Value;}
         if(payload.Type != null){education.Type = (EEducationType)payload.Type;}
         if(payload.Status != null){education.Status = (EEducationStatus)payload.Status;}
 
