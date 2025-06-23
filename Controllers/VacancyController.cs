@@ -174,4 +174,26 @@ public class VacancyController : ControllerBase
         return Ok(new BaseResponse("Vacancy found", vacancy.Applications.Select(ApplicationFullDTO.Map)));
     }
 
+    [AdminOnly]
+    [HttpGet]
+    [Route("stats")]
+    public async Task<ActionResult> GetStats(
+        [FromServices] BaseRepository<Vacancy> vacancyRepository,
+        [FromServices] BaseRepository<Application> applicationRepository
+    )
+    {
+        var totalVacancy = await vacancyRepository.Get()
+            .CountAsync();
+        
+        var totalActive = await vacancyRepository.Get()
+            .Where(vacancy => vacancy.CanApply)
+            .CountAsync();
+
+        var totalApplications = await applicationRepository.Get()
+            .CountAsync();
+
+        var avgApplication = totalVacancy != 0 ? totalApplications / totalVacancy : 0;
+
+        return Ok(new BaseResponse("Stats found", new VacancyStatsDTO(totalVacancy, totalActive, totalApplications, avgApplication)));
+    }
 }
