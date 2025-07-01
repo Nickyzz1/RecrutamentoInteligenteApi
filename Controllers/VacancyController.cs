@@ -25,7 +25,7 @@ public class VacancyController : ControllerBase
             new Vacancy(){
                 Title=payload.Title,
                 Description=payload.Description,
-                WorkDays=payload.WorkDays,
+                WorkDays=(EWorkDays)payload.WorkDays,
                 WorkStart=payload.WorkStart,
                 WorkEnd=payload.WorkEnd,
                 CanApply=payload.CanApply
