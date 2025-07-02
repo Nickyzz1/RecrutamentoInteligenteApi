@@ -58,8 +58,8 @@ public class VacancyController : ControllerBase
         if(payload.Title != null){vacancy.Title = payload.Title;}
         if(payload.Description != null){vacancy.Description = payload.Description;}
         if(payload.WorkDays != null){vacancy.WorkDays = (EWorkDays)payload.WorkDays;}
-        if(payload.WorkStart != null){vacancy.WorkStart = (DateTime)payload.WorkStart;}
-        if(payload.WorkEnd != null){vacancy.WorkEnd = (DateTime)payload.WorkEnd;}
+        if(payload.WorkStart != null){vacancy.WorkStart = (DateTime)payload.WorkStart.Value;}
+        if(payload.WorkEnd != null){vacancy.WorkEnd = (DateTime)payload.WorkEnd.Value;}
         if(payload.CanApply != null){vacancy.CanApply = (bool)payload.CanApply;}
 
         vacancy = await vacancyService.UpdateAsync(id, vacancy);
