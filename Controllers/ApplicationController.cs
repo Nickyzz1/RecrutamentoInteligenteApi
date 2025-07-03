@@ -47,6 +47,29 @@ public class ApplicationController : ControllerBase
         return Ok(new BaseResponse("Applied successfully", ApplicationDTO.Map(application)));
     }
 
+    [HttpGet]
+    [Route("{id}")]
+    public async Task<ActionResult> GetApplication(
+        [FromRoute] int id,
+        [FromServices] BaseService<Application> applicationService
+    )
+    {
+        Application? application = await applicationService.GetAsync(id, "Candidate");
+
+        if(application == null)
+        {
+            return NotFound(new BaseResponse("Application not Found"));
+        }
+
+        if(application.Candidate.Id != User.Id() && User.Admin() == false)
+        {
+            return Unauthorized(new BaseResponse("You do not have permission to access this resource"));
+        }
+
+        return Ok(new BaseResponse("Application found", ApplicationDTO.Map(application)));
+    }
+
+
     [HttpPatch]
     [Route("{id}")]
     public async Task<ActionResult> UpdateApplication(
@@ -55,7 +78,7 @@ public class ApplicationController : ControllerBase
         [FromServices] BaseService<Application> applicationService
     )
     {
-        Application? application = await applicationService.GetAsync(id, "Candidate");
+        Application? application = await applicationService.GetAsync(id, ["Candidate", "Vacancy"]);
 
         if(application == null)
         {
